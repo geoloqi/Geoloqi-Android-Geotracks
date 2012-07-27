@@ -51,8 +51,8 @@ public class MainActivity extends SherlockFragmentActivity implements OnClickLis
         
         // Configure our navigation
         mAdapter = new MainFragmentPagerAdapter(getSupportFragmentManager());
-        mAdapter.addItem(getString(R.string.trip_list_title),
-                Fragment.instantiate(this, TripListFragment.class.getName()));
+        mAdapter.addItem(getString(R.string.link_list_title),
+                Fragment.instantiate(this, LinkListFragment.class.getName()));
         
         mPager = (ViewPager) findViewById(R.id.main_pager);
         mPager.setAdapter(mAdapter);

@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import org.json.JSONObject;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -19,14 +20,14 @@ import com.geoloqi.trips.R;
 
 /**
  * This class is a simple implementation of ArrayAdapter and
- * should be used for displaying trip details in a list.
+ * should be used for displaying share link details in a list.
  * 
  * @author Tristan Waddington
  */
-public class TripListAdapter extends ArrayAdapter<JSONObject> {
+public class LinkListAdapter extends ArrayAdapter<JSONObject> {
     private LayoutInflater mInflater;
     
-    public TripListAdapter(Context context) {
+    public LinkListAdapter(Context context) {
         super(context, R.layout.simple_text_list_item);
         
         // Get our layout inflater
@@ -58,23 +59,38 @@ public class TripListAdapter extends ArrayAdapter<JSONObject> {
         holder.text2.setText("");
         
         // Populate our data
-        JSONObject trip = getItem(position);
+        JSONObject link = getItem(position);
         
-        // Is the trip active?
-        // TODO: Mark expired trips in the UI.
-        boolean isActive = trip.optBoolean("currently_active");
-        
-        holder.text1.setText(trip.optString("token"));
-        
-        // Format the metadata line
-        String subText = formatTimestamp(
-                trip.optLong("date_created_ts") * 1000);
-        
-        String description = trip.optString("description");
-        if (!TextUtils.isEmpty(description)) {
-            subText = String.format("%s | %s", subText, description);
+        // Is the link still active?
+        boolean isActive = link.optInt("currently_active") > 0;
+        if (!isActive) {
+            // TODO: Inactive link!
+            //convertView.setAlpha(.6f);
+        } else {
+            // TODO: Active link!
+            //convertView.setAlpha(1);
         }
-        holder.text2.setText(subText);
+        
+        // Format the first line of text
+        String description = link.optString("description");
+        if (!TextUtils.isEmpty(description)) {
+            holder.text1.setText(description);
+        } else {
+            holder.text1.setText(link.optString("shortlink"));
+        }
+        
+        // Format the link created at timestamp
+        String createdAt = formatTimestamp(
+                link.optLong("date_creaated_ts") * 1000);
+        
+        // Format the second line of text
+        String locationName = link.optString("start_location_name");
+        if (!TextUtils.isEmpty(locationName)) {
+            holder.text2.setText(String.format("%s | %s",
+                    createdAt, locationName));
+        } else {
+            holder.text2.setText(createdAt);
+        }
         
         return convertView;
     }
