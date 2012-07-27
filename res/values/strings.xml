@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Geonotes</string>
-    
-    <string-array name="trigger_types">
-        <item>Enter</item>
-        <item>Leave</item>
-    </string-array>
+    <string name="app_name">Trips</string>
     
     <!-- Button text -->
     <string name="sign_up_button">Sign Up</string>
