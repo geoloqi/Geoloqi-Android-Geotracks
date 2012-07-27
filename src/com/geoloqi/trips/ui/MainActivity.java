@@ -26,7 +26,7 @@ import com.geoloqi.trips.app.SimpleAlertDialogFragment;
 import com.viewpagerindicator.TabPageIndicator;
 
 /**
- * The main activity for the Geoloqi client application.
+ * The main activity for the Geoloqi trips application.
  * 
  * @author Tristan Waddington
  */
@@ -51,12 +51,8 @@ public class MainActivity extends SherlockFragmentActivity implements OnClickLis
         
         // Configure our navigation
         mAdapter = new MainFragmentPagerAdapter(getSupportFragmentManager());
-        mAdapter.addItem(getString(R.string.activity_list_title),
-                Fragment.instantiate(this, ActivityListFragment.class.getName()));
-        mAdapter.addItem(getString(R.string.layer_list_title),
-                Fragment.instantiate(this, LayerListFragment.class.getName()));
-        mAdapter.addItem(getString(R.string.geonote_list_title),
-                Fragment.instantiate(this, GeonoteListFragment.class.getName()));
+        mAdapter.addItem(getString(R.string.trip_list_title),
+                Fragment.instantiate(this, TripListFragment.class.getName()));
         
         mPager = (ViewPager) findViewById(R.id.main_pager);
         mPager.setAdapter(mAdapter);
@@ -139,9 +135,6 @@ public class MainActivity extends SherlockFragmentActivity implements OnClickLis
         switch(item.getItemId()) {
         case R.id.menu_settings:
             startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        case R.id.menu_create_geonote:
-            startActivity(new Intent(this, EditGeonoteActivity.class));
             return true;
         case R.id.menu_refresh:
             refreshListFragments();

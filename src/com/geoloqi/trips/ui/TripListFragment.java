@@ -30,20 +30,20 @@ import com.geoloqi.android.sdk.LQSession.OnRunApiRequestListener;
 import com.geoloqi.android.sdk.service.LQService;
 import com.geoloqi.trips.R;
 import com.geoloqi.trips.ui.MainActivity.LQServiceConnection;
-import com.geoloqi.trips.widget.GeonoteListAdapter;
+import com.geoloqi.trips.widget.TripListAdapter;
 
 /**
  * An implementation of {@link ListFragment} for displaying
- * the currently authenticated user's list of pending geonotes.
+ * the currently authenticated user's list of trips.
  * 
  * @author Tristan Waddington
  */
-public class GeonoteListFragment extends SherlockListFragment implements
+public class TripListFragment extends SherlockListFragment implements
         OnItemClickListener, LQServiceConnection {
-    private static final String TAG = "GeonoteListFragment";
+    private static final String TAG = "TripListFragment";
     
     private JSONArray mItems;
-    private GeonoteListAdapter mAdapter;
+    private TripListAdapter mAdapter;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,7 +60,7 @@ public class GeonoteListFragment extends SherlockListFragment implements
         lv.setOnItemClickListener(this);
         
         // Set the default text
-        setEmptyText(getString(R.string.empty_geonote_list));
+        setEmptyText(getString(R.string.empty_trip_list));
         
         // Register our context menu
         registerForContextMenu(lv);
@@ -82,29 +82,26 @@ public class GeonoteListFragment extends SherlockListFragment implements
         super.onCreateContextMenu(menu, v, menuInfo);
         
         // Inflate our context menu
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.geonote_context_menu, menu);
+        //MenuInflater inflater = getActivity().getMenuInflater();
+        //inflater.inflate(R.menu.trip_context_menu, menu);
     }
     
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        JSONObject geonote = (JSONObject) mAdapter.getItem(info.position);
+        JSONObject trip = (JSONObject) mAdapter.getItem(info.position);
         
+        /*
         switch (item.getItemId()) {
         case R.id.delete:
             deleteGeonote(info, geonote);
             return true;
         }
+        */
         return false;
     }
     
-    /**
-     * Delete a geonote from the list.
-     * 
-     * @param info
-     * @param geonote
-     */
+    /*
     private void deleteGeonote(final AdapterContextMenuInfo info, final JSONObject geonote) {
         ArrayList<JSONObject> list = new ArrayList<JSONObject>();
         
@@ -135,31 +132,8 @@ public class GeonoteListFragment extends SherlockListFragment implements
             }
         }
     }
-    
-    /**
-     * Take an action when a Geonote is deleted from the list.
-     * 
-     * @author Tristan Waddington
-     */
-    private class DeleteGeonoteListener implements OnRunApiRequestListener {
-        @Override
-        public void onComplete(LQSession session, JSONObject json,
-                Header[] headers, StatusLine status) {
-            Toast.makeText(getActivity(), R.string.delete_geonote_error,
-                    Toast.LENGTH_LONG).show();
-        }
-        @Override
-        public void onFailure(LQSession session, LQException e) {
-            Toast.makeText(getActivity(), R.string.delete_geonote_error,
-                    Toast.LENGTH_LONG).show();
-        }
-        @Override
-        public void onSuccess(LQSession session, JSONObject json,
-                Header[] headers) {
-            // Pass
-        }
-    }
-    
+    */
+
     @Override
     public void onServiceConnected(LQService service) {
         Log.d(TAG, "onServiceConnected");
@@ -183,26 +157,26 @@ public class GeonoteListFragment extends SherlockListFragment implements
             return;
         }
         
-        session.runGetRequest("geonote/list_set", new OnRunApiRequestListener() {
+        session.runGetRequest("link/list", new OnRunApiRequestListener() {
             @Override
             public void onSuccess(LQSession session, JSONObject json,
                     Header[] headers) {
                 Activity activity = getActivity();
                 if (activity != null) {
                     // Create our list adapter
-                    mAdapter = new GeonoteListAdapter(activity);
+                    mAdapter = new TripListAdapter(activity);
                     
                     try {
-                        mItems = json.getJSONArray("geonotes");
+                        mItems = json.getJSONArray("trips");
                         
                         // We iterate over the list in reverse order so the
-                        // latest geonote is at the top.
+                        // latest trip is at the top.
                         for (int i = (mItems.length() - 1); i >= 0; i--) {
                             mAdapter.add(mItems.optJSONObject(i));
                         }
                         setListAdapter(mAdapter);
                     } catch (JSONException e) {
-                        Log.e(TAG, "Failed to parse the list of geonotes!", e);
+                        Log.e(TAG, "Failed to parse the list of trips!", e);
                     } catch (IllegalStateException e) {
                         // The Fragment was probably detached while the
                         // request was in-progress. We should cancel
@@ -212,19 +186,19 @@ public class GeonoteListFragment extends SherlockListFragment implements
             }
             @Override
             public void onFailure(LQSession session, LQException e) {
-                Log.e(TAG, "Failed to load the geonote list!", e);
+                Log.e(TAG, "Failed to load the trip list!", e);
                 
                 // Set an empty adapter on the list
-                setListAdapter(new GeonoteListAdapter(getActivity()));
+                setListAdapter(new TripListAdapter(getActivity()));
             }
             @Override
             public void onComplete(LQSession session, JSONObject json,
                     Header[] headers, StatusLine status) {
                 Log.d(TAG, status.toString());
-                Log.e(TAG, "Failed to load the geonote list!");
+                Log.e(TAG, "Failed to load the trip list!");
                 
                 // Set an empty adapter on the list
-                setListAdapter(new GeonoteListAdapter(getActivity()));
+                setListAdapter(new TripListAdapter(getActivity()));
             }
         });
     }

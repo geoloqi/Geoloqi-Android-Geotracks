@@ -19,14 +19,14 @@ import com.geoloqi.trips.R;
 
 /**
  * This class is a simple implementation of ArrayAdapter and
- * should be used for displaying geonote details in a list.
+ * should be used for displaying trip details in a list.
  * 
  * @author Tristan Waddington
  */
-public class GeonoteListAdapter extends ArrayAdapter<JSONObject> {
+public class TripListAdapter extends ArrayAdapter<JSONObject> {
     private LayoutInflater mInflater;
     
-    public GeonoteListAdapter(Context context) {
+    public TripListAdapter(Context context) {
         super(context, R.layout.simple_text_list_item);
         
         // Get our layout inflater
@@ -58,16 +58,21 @@ public class GeonoteListAdapter extends ArrayAdapter<JSONObject> {
         holder.text2.setText("");
         
         // Populate our data
-        JSONObject geonote = getItem(position);
-        holder.text1.setText(geonote.optString("text"));
+        JSONObject trip = getItem(position);
+        
+        // Is the trip active?
+        // TODO: Mark expired trips in the UI.
+        boolean isActive = trip.optBoolean("currently_active");
+        
+        holder.text1.setText(trip.optString("token"));
         
         // Format the metadata line
         String subText = formatTimestamp(
-                geonote.optLong("date_created_ts") * 1000);
+                trip.optLong("date_created_ts") * 1000);
         
-        String placeName = geonote.optString("place_name");
-        if (!TextUtils.isEmpty(placeName)) {
-            subText = String.format("%s | %s", subText, placeName);
+        String description = trip.optString("description");
+        if (!TextUtils.isEmpty(description)) {
+            subText = String.format("%s | %s", subText, description);
         }
         holder.text2.setText(subText);
         

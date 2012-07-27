@@ -6,10 +6,6 @@
     <string name="sign_up_button">Sign Up</string>
     <string name="sign_in_button">Sign In</string>
     
-    <!-- Notification text -->
-    <string name="foreground_notification_ticker">Starting the Geonotes service.</string>
-    <string name="foreground_notification_text">Select to disable the background service.</string>
-    
     <!-- Dialogs -->
     <string name="loading_message">Loading, please wait&#8230;</string>
     <string name="authenticating_message">Authenticating, please wait&#8230;</string>
@@ -20,15 +16,10 @@
     <string name="settings_title">Settings</string>
     
     <!-- Fragments -->
-    <string name="activity_list_title">ACTIVITY</string>
-    <string name="layer_list_title">LAYERS</string>
-    <string name="geonote_list_title">GEONOTES</string>
-    <string name="empty_activity_list">You haven\'t received any messages.\n Try subscribing to some layers!</string>
-    <string name="empty_layer_list">We couldn\'t find any layers.</string>
-    <string name="empty_geonote_list">You have no pending geonotes.\n Tap the plus button to set a new geonote.</string>
+    <string name="trip_list_title">TRIPS</string>
+    <string name="empty_trip_list">You haven\'t shared any trips.</string>
     
     <!-- Menu items -->
-    <string name="menu_create_geonote_title">Create Geonote</string>
     <string name="menu_refresh_title">Refresh</string>
     <string name="menu_settings_title">Settings</string>
     <string name="menu_share_title">Share</string>
@@ -68,7 +59,6 @@
     <string name="user_account_summary">Sign in as another user?</string>
     
     <!-- Error messages -->
-    <string name="delete_geonote_error">Failed to delete Geonote!</string>
     <string name="invalid_email_error">Please enter a valid e-mail.</string>
     <string name="invalid_password_error">Please enter a valid password.</string>
     <string name="invalid_form_error">All fields are required!</string>
