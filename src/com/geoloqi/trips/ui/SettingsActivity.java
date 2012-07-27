@@ -1,5 +1,7 @@
 package com.geoloqi.trips.ui;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +18,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
@@ -40,6 +43,10 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
     private static final String URL_PRIVACY_POLICY =
             "https://geoloqi.com/privacy?utm_source=preferences&utm_medium=app&utm_campaign=android";
     
+    /** The default tracker profile. */
+    private static final LQTrackerProfile DEFAULT_TRACKER_PROFILE =
+            LQTrackerProfile.LOGGING;
+    
     /** A cached reference of the application version from the manifest. */
     private static String sAppVersion;
     
@@ -59,6 +66,11 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         // Set any preference listeners
         Preference preference = findPreference(
                 getString(R.string.pref_key_tracker_status));
+        if (preference != null) {
+            preference.setOnPreferenceChangeListener(this);
+        }
+        
+        preference = findPreference(getString(R.string.pref_key_real_time));
         if (preference != null) {
             preference.setOnPreferenceChangeListener(this);
         }
@@ -153,26 +165,35 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
+        CheckBoxPreference realtime =
+                (CheckBoxPreference) findPreference(getString(R.string.pref_key_real_time));
+        
         String key = preference.getKey();
         if (key.equals(getString(R.string.pref_key_tracker_status))) {
             boolean enableLocation = newValue.equals(true);
-            
-            CheckBoxPreference startOnBoot =
-                    (CheckBoxPreference) findPreference(getString(R.string.pref_key_start_on_boot));
             
             if (enableLocation) {
                 // Start the service
                 startTracker(this);
                 
                 // Enable the start on boot option
-                startOnBoot.setEnabled(true);
+                realtime.setEnabled(true);
             } else {
                 // Stop the service
                 stopService(new Intent(this, LQService.class));
                 
                 // Disable the start on boot option
-                startOnBoot.setEnabled(false);
-                startOnBoot.setChecked(false);
+                realtime.setEnabled(false);
+                realtime.setChecked(false);
+            }
+        } else if (key.equals(getString(R.string.pref_key_real_time))) {
+            boolean isRealTime = Boolean.parseBoolean(newValue.toString());
+            if (isRealTime) {
+                // Start the tracker in real time mode
+                startTracker(this, LQTrackerProfile.REAL_TIME);
+            } else {
+                // Start the tracker in the default mode
+                startTracker(this);
             }
         } else if (key.equals(getString(R.string.pref_key_vibrate))) {
             boolean shouldVibrate = newValue.equals(true);
@@ -241,14 +262,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                 context.getString(R.string.pref_key_tracker_status), true);
     }
 
-    /** Determine if the user has asked the tracker to be started on boot. */
-    public static boolean isStartOnBootEnabled(Context context) {
-        SharedPreferences preferences = (SharedPreferences)
-                PreferenceManager.getDefaultSharedPreferences(context);
-        return isTrackerEnabled(context) && preferences.getBoolean(
-                context.getString(R.string.pref_key_start_on_boot), true);
-    }
-
     /** Get the human-readable application version. */
     public static String getAppVersion(Context context) {
         if (TextUtils.isEmpty(sAppVersion)) {
@@ -265,14 +278,44 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
     
     /** Start the background location service. */
     public static void startTracker(Context c) {
+        startTracker(c, DEFAULT_TRACKER_PROFILE);
+    }
+    
+    /** Start the background location service. */
+    public static void startTracker(Context c, LQTrackerProfile profile) {
         Intent intent = new Intent(c, LQService.class);
+        intent.setAction(LQService.ACTION_FOREGROUND);
+        intent.putExtra(LQService.EXTRA_NOTIFICATION,
+                getForegroundNotification(c));
         c.startService(intent);
         
         // Ensure the tracker is always in the correct profile
         Intent profileIntent = new Intent(c, LQService.class);
         profileIntent.setAction(LQService.ACTION_SET_TRACKER_PROFILE);
-        profileIntent.putExtra(LQService.EXTRA_PROFILE, LQTrackerProfile.ADAPTIVE);
+        profileIntent.putExtra(LQService.EXTRA_PROFILE, profile);
         c.startService(profileIntent);
+    }
+    
+    /**
+     * Return the {@link Notification} to be displayed when the location
+     * service is running.
+     */
+    public static Notification getForegroundNotification(Context c) {
+        Intent intent = new Intent(c, SettingsActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(c, 0, intent, 0);
+        
+        // TODO: Add action buttons to stop the service in JellyBean!
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(c);
+        builder.setWhen(0);
+        builder.setOngoing(true);
+        builder.setOnlyAlertOnce(true);
+        builder.setContentIntent(pendingIntent);
+        builder.setSmallIcon(R.drawable.ic_stat_notify);
+        builder.setTicker(c.getString(R.string.foreground_ticker));
+        builder.setContentTitle(c.getString(R.string.foreground_title));
+        builder.setContentText(c.getString(R.string.foreground_text));
+        
+        return builder.getNotification();
     }
     
     /** Defines callbacks for service binding, passed to bindService() */

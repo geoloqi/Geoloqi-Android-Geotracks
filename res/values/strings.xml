@@ -6,6 +6,11 @@
     <string name="sign_up_button">Sign Up</string>
     <string name="sign_in_button">Sign In</string>
     
+    <!-- Notifications -->
+    <string name="foreground_ticker">Starting the location service&#8230;</string>
+    <string name="foreground_title">Trips</string>
+    <string name="foreground_text">The location service is running.</string>
+    
     <!-- Dialogs -->
     <string name="loading_message">Loading, please wait&#8230;</string>
     <string name="authenticating_message">Authenticating, please wait&#8230;</string>
@@ -20,6 +25,7 @@
     <string name="empty_trip_list">You haven\'t shared any trips.</string>
     
     <!-- Menu items -->
+    <string name="menu_start_trip_title">Start trip</string>
     <string name="menu_refresh_title">Refresh</string>
     <string name="menu_settings_title">Settings</string>
     <string name="menu_share_title">Share</string>
@@ -33,7 +39,7 @@
     
     <!-- Preference keys -->
     <string name="pref_key_tracker_status">tracker_status</string>
-    <string name="pref_key_start_on_boot">start_on_boot</string>
+    <string name="pref_key_real_time">start_on_boot</string>
     <string name="pref_key_vibrate">vibrate</string>
     <string name="pref_key_account_username">account_username</string>
     <string name="pref_key_app_version">app_version</string>
@@ -44,7 +50,7 @@
     
     <!-- Preference titles -->
     <string name="tracker_status_title">Enable location</string>
-    <string name="start_on_boot_title">Enable on reboot</string>
+    <string name="real_time_title">Real-time tracking</string>
     <string name="vibrate_title">Vibrate</string>
     <string name="username_title">Sign in</string>
     <string name="app_version_title">App version</string>
@@ -54,7 +60,7 @@
     <string name="privacy_policy_title">Privacy Policy</string>
     
     <!-- Preference summaries -->
-    <string name="start_on_boot_summary">Start the location service automatically</string>
+    <string name="real_time_summary">Updates will be lost on unreliable network connections!</string>
     <string name="vibrate_summary">Vibrate when new items arrive</string>
     <string name="user_account_summary">Sign in as another user?</string>
     

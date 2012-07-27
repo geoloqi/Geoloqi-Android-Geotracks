@@ -9,10 +9,11 @@
             android:title="@string/tracker_status_title"
             android:defaultValue="true" />
         <CheckBoxPreference
-            android:key="@string/pref_key_start_on_boot"
-            android:title="@string/start_on_boot_title"
-            android:summary="@string/start_on_boot_summary"
-            android:defaultValue="true" />
+            android:key="@string/pref_key_real_time"
+            android:title="@string/real_time_title"
+            android:summary="@string/real_time_summary"
+            android:defaultValue="false"
+            android:persistent="false" />
     </PreferenceCategory>
     
     <!-- Notification preferences -->
