@@ -1,7 +1,7 @@
 This is one of the official Android client applications for Geoloqi. This
-application provides functionality for managing your layers and geonotes.
-It consumes the Geoloqi Android SDK and is one example of what can be
-accomplished using the library.
+application provides functionality for tracking and sharing your
+personal location. It consumes the Geoloqi Android SDK and is one
+example of what can be accomplished using the library.
 
 You can download this application from [Google Play][google-play].
 
@@ -29,7 +29,10 @@ near the bottom.
 
 > Note: The previous step may have already been completed for you.
 
-Repeate the steps listed above for the additional ViewPagerIndicator library.
+Repeat the steps listed above for the additional ViewPagerIndicator library.
+It may be necessary to adjust the Android platform version to 4.x for
+the ViewPagerIndicator library if Eclipse cannot find the TabPagerIndicator
+class.
 
 ## License
 
@@ -40,4 +43,4 @@ See LICENSE.
 [geoloqi-site]: https://geoloqi.com/
 [geoloqi-dev-site]: https://developers.geoloqi.com/
 [android-managing-projects]: http://developer.android.com/guide/developing/projects/projects-cmdline.html
-[google-play]: https://play.google.com/store/apps/details?id=com.geoloqi.geonotes
+[google-play]: https://play.google.com/store/apps/details?id=com.geoloqi.trips
