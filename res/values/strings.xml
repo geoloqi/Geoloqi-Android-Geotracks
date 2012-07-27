@@ -21,14 +21,18 @@
     <string name="settings_title">Settings</string>
     
     <!-- Fragments -->
-    <string name="trip_list_title">TRIPS</string>
-    <string name="empty_trip_list">You haven\'t shared any trips.</string>
+    <string name="link_list_title">LINKS</string>
+    <string name="empty_link_list">You haven\'t shared any trips.</string>
     
     <!-- Menu items -->
     <string name="menu_start_trip_title">Start trip</string>
     <string name="menu_refresh_title">Refresh</string>
     <string name="menu_settings_title">Settings</string>
     <string name="menu_share_title">Share</string>
+    
+    <string name="menu_link_deactivate">Disable link</string>
+    <string name="menu_link_share">Send link</string>
+    <string name="menu_link_export">Export data</string>
     
     <!-- Preference category titles -->
     <string name="general_category_title">General</string>
@@ -40,7 +44,6 @@
     <!-- Preference keys -->
     <string name="pref_key_tracker_status">tracker_status</string>
     <string name="pref_key_real_time">start_on_boot</string>
-    <string name="pref_key_vibrate">vibrate</string>
     <string name="pref_key_account_username">account_username</string>
     <string name="pref_key_app_version">app_version</string>
     <string name="pref_key_app_build">app_build</string>
@@ -51,7 +54,6 @@
     <!-- Preference titles -->
     <string name="tracker_status_title">Enable location</string>
     <string name="real_time_title">Real-time tracking</string>
-    <string name="vibrate_title">Vibrate</string>
     <string name="username_title">Sign in</string>
     <string name="app_version_title">App version</string>
     <string name="app_build_title">App build</string>
@@ -61,7 +63,6 @@
     
     <!-- Preference summaries -->
     <string name="real_time_summary">Updates will be lost on unreliable network connections!</string>
-    <string name="vibrate_summary">Vibrate when new items arrive</string>
     <string name="user_account_summary">Sign in as another user?</string>
     
     <!-- Error messages -->

@@ -76,12 +76,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         }
         
         preference = findPreference(
-                getString(R.string.pref_key_vibrate));
-        if (preference != null) {
-            preference.setOnPreferenceChangeListener(this);
-        }
-        
-        preference = findPreference(
                 getString(R.string.pref_key_account_username));
         if (preference != null) {
             preference.setOnPreferenceClickListener(this);
@@ -100,13 +94,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         
         if (mPreferences != null) {
             Preference preference = null;
-            CheckBoxPreference checkboxPreference =
-                    (CheckBoxPreference) findPreference(getString(R.string.pref_key_vibrate));
-            
-            // Display the vibrate preference
-            if (checkboxPreference != null) {
-                checkboxPreference.setChecked(LQSharedPreferences.shouldVibrate(this));
-            }
             
             // Display the account
             preference = findPreference(getString(R.string.pref_key_account_username));
@@ -194,14 +181,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
             } else {
                 // Start the tracker in the default mode
                 startTracker(this);
-            }
-        } else if (key.equals(getString(R.string.pref_key_vibrate))) {
-            boolean shouldVibrate = newValue.equals(true);
-            
-            if (shouldVibrate) {
-                LQSharedPreferences.enableVibration(this);
-            } else {
-                LQSharedPreferences.disableVibration(this);
             }
         }
         return true;

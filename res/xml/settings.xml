@@ -16,17 +16,6 @@
             android:persistent="false" />
     </PreferenceCategory>
     
-    <!-- Notification preferences -->
-    <PreferenceCategory
-        android:title="@string/notification_category_title">
-        <CheckBoxPreference
-            android:key="@string/pref_key_vibrate"
-            android:title="@string/vibrate_title"
-            android:summary="@string/vibrate_summary"
-            android:persistent="false"
-            android:defaultValue="false" />
-    </PreferenceCategory>
-    
     <!-- Account preferences -->
     <PreferenceCategory
         android:title="@string/account_category_title">
