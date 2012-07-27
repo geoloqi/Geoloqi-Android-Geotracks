@@ -81,7 +81,7 @@ public class LinkListAdapter extends ArrayAdapter<JSONObject> {
         
         // Format the link created at timestamp
         String createdAt = formatTimestamp(
-                link.optLong("date_creaated_ts") * 1000);
+                link.optLong("date_created_ts") * 1000);
         
         // Format the second line of text
         String locationName = link.optString("start_location_name");
