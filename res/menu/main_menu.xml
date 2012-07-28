@@ -2,14 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/menu_start_trip"
-        android:icon="@drawable/ic_start_trip"
-        android:title="@string/menu_start_trip_title"
+        android:id="@+id/menu_share"
+        android:icon="@drawable/ic_social_share"
+        android:title="@string/menu_share_title"
         android:showAsAction="always" />
-    <item
-        android:id="@+id/menu_refresh"
-        android:icon="@drawable/ic_navigation_refresh_dark"
-        android:title="@string/menu_refresh_title" />
     <item
         android:id="@+id/menu_settings"
         android:icon="@drawable/ic_action_settings_dark"

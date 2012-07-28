@@ -6,9 +6,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -17,18 +20,22 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SpinnerAdapter;
+import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
 import com.geoloqi.android.sdk.LQException;
 import com.geoloqi.android.sdk.LQSession;
 import com.geoloqi.android.sdk.LQSession.OnRunApiRequestListener;
 import com.geoloqi.android.sdk.service.LQService;
+import com.geoloqi.android.sdk.service.LQService.LQBinder;
 import com.geoloqi.trips.R;
-import com.geoloqi.trips.ui.MainActivity.LQServiceConnection;
 import com.geoloqi.trips.widget.LinkListAdapter;
 
 /**
@@ -37,21 +44,35 @@ import com.geoloqi.trips.widget.LinkListAdapter;
  * 
  * @author Tristan Waddington
  */
-public class LinkListFragment extends SherlockListFragment implements
-        OnItemClickListener, LQServiceConnection {
-    private static final String TAG = "LinkListFragment";
+public class LinkListActivity extends SherlockListActivity implements
+        OnItemClickListener, ActionBar.OnNavigationListener {
+    private static final String TAG = "LinkListActivity";
     
     private JSONArray mItems;
     private LinkListAdapter mAdapter;
+    private SpinnerAdapter mSpinnerAdapter;
+    
+    private LQService mService;
+    private boolean mBound;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-    
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+        
+        // TODO: Set content view so we can include the anonymous
+        //       message.
+        
+        // Configure our ActionBar navigation
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        
+        SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(actionBar.getThemedContext(),
+                R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
+        actionBar.setListNavigationCallbacks(mSpinnerAdapter, this);
+        
+        // Ensure the correct navigation item is selected!
+        actionBar.setSelectedNavigationItem(1);
         
         // Configure our ListView
         ListView lv = getListView();
@@ -59,20 +80,65 @@ public class LinkListFragment extends SherlockListFragment implements
         lv.setOnItemClickListener(this);
         
         // Set the default text
-        setEmptyText(getString(R.string.empty_link_list));
+        //setEmptyText(getString(R.string.empty_link_list));
         
         // Register our context menu
         registerForContextMenu(lv);
-        
-        LQService service = ((MainActivity) getActivity()).getService();
-        if (service != null) {
-            onServiceConnected(service);
-        }
     }
     
     @Override
+    public void onResume() {
+        super.onResume();
+        
+        // Bind to the tracking service so we can call public methods on it
+        Intent intent = new Intent(this, LQService.class);
+        bindService(intent, mConnection, BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        
+        // Unbind from LQService
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        
+        com.actionbarsherlock.view.MenuInflater inflater = getSupportMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+        switch(item.getItemId()) {
+        case R.id.menu_share:
+            // TODO: Create a new sharing link!
+            return true;
+        case R.id.menu_settings:
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // Pass
+        JSONObject link = mAdapter.getItem(position);
+        
+        // Start our message detail activity
+        Intent intent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse(link.optString("shortlink")));
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
     
     @Override
@@ -81,7 +147,7 @@ public class LinkListFragment extends SherlockListFragment implements
         super.onCreateContextMenu(menu, v, menuInfo);
         
         // Inflate our context menu
-        MenuInflater inflater = getActivity().getMenuInflater();
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.link_context_menu, menu);
         
         // Get our context item info
@@ -112,8 +178,7 @@ public class LinkListFragment extends SherlockListFragment implements
             expireLink(info, link);
             return true;
         case R.id.menu_link_share:
-            Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_SEND);
+            Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, String.format("%s: %s",
                     link.optString("description"), link.optString("shortlink")));
@@ -121,6 +186,26 @@ public class LinkListFragment extends SherlockListFragment implements
             return true;
         case R.id.menu_link_export:
             // TODO: What do we want to do here?
+            return true;
+        }
+        return false;
+    }
+    
+    @Override
+    public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+        switch (itemPosition) {
+        case 0:
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
+            
+            // Finish this Activity to remove it from the task stack. This
+            // preserves the expected back behavior.
+            finish();
+            
+            return true;
+        case 1:
+            // Do nothing! The LinkListActivity is already selected.
             return true;
         }
         return false;
@@ -139,9 +224,8 @@ public class LinkListFragment extends SherlockListFragment implements
             mAdapter.notifyDataSetChanged();
             
             // Notify the server that the link should be expired
-            LQService service = ((MainActivity) getActivity()).getService();
-            if (service != null) {
-                LQSession session = service.getSession();
+            if (mBound && mService != null) {
+                LQSession session = mService.getSession();
                 if (session != null) {
                     JSONObject data = new JSONObject();
                     data.put("token", link.optString("token"));
@@ -151,8 +235,8 @@ public class LinkListFragment extends SherlockListFragment implements
             }
         } catch (JSONException e) {
             // Notify the user
-            Toast.makeText(getActivity(),
-                    "Failed to expire share link!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Failed to expire share link!",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -162,7 +246,7 @@ public class LinkListFragment extends SherlockListFragment implements
         public void onComplete(LQSession session, JSONObject json,
                 Header[] headers, StatusLine status) {
             // Notify the user
-            Toast.makeText(getActivity(),
+            Toast.makeText(LinkListActivity.this,
                     json.optString("error_description"), Toast.LENGTH_SHORT).show();
         }
         @Override
@@ -170,19 +254,18 @@ public class LinkListFragment extends SherlockListFragment implements
             Log.e(TAG, "Failed to expire share link!", e);
             
             // Notify the user
-            Toast.makeText(getActivity(),
+            Toast.makeText(LinkListActivity.this,
                     "Failed to expire share link!", Toast.LENGTH_SHORT).show();
         }
         @Override
         public void onSuccess(LQSession session, JSONObject json,
                 Header[] headers) {
             // Notify the user
-            Toast.makeText(getActivity(),
+            Toast.makeText(LinkListActivity.this,
                     "Link expired!", Toast.LENGTH_SHORT).show();
         }
     }
 
-    @Override
     public void onServiceConnected(LQService service) {
         Log.d(TAG, "onServiceConnected");
         
@@ -194,7 +277,6 @@ public class LinkListFragment extends SherlockListFragment implements
         onRefreshRequested(service);
     }
 
-    @Override
     public void onRefreshRequested(LQService service) {
         LQSession session = service.getSession();
         
@@ -209,25 +291,22 @@ public class LinkListFragment extends SherlockListFragment implements
             @Override
             public void onSuccess(LQSession session, JSONObject json,
                     Header[] headers) {
-                Activity activity = getActivity();
-                if (activity != null) {
-                    // Create our list adapter
-                    mAdapter = new LinkListAdapter(activity);
+                // Create our list adapter
+                mAdapter = new LinkListAdapter(LinkListActivity.this);
+                
+                try {
+                    mItems = json.getJSONArray("links");
                     
-                    try {
-                        mItems = json.getJSONArray("links");
-                        
-                        for (int i = 0; i < mItems.length(); i++) {
-                            mAdapter.add(mItems.getJSONObject(i));
-                        }
-                        setListAdapter(mAdapter);
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Failed to parse the list of trips!", e);
-                    } catch (IllegalStateException e) {
-                        // The Fragment was probably detached while the
-                        // request was in-progress. We should cancel
-                        // the request when this happens.
+                    for (int i = 0; i < mItems.length(); i++) {
+                        mAdapter.add(mItems.getJSONObject(i));
                     }
+                    setListAdapter(mAdapter);
+                } catch (JSONException e) {
+                    Log.e(TAG, "Failed to parse the list of trips!", e);
+                } catch (IllegalStateException e) {
+                    // The Fragment was probably detached while the
+                    // request was in-progress. We should cancel
+                    // the request when this happens.
                 }
             }
             @Override
@@ -235,7 +314,7 @@ public class LinkListFragment extends SherlockListFragment implements
                 Log.e(TAG, "Failed to load the trip list!", e);
                 
                 // Set an empty adapter on the list
-                setListAdapter(new LinkListAdapter(getActivity()));
+                setListAdapter(new LinkListAdapter(LinkListActivity.this));
             }
             @Override
             public void onComplete(LQSession session, JSONObject json,
@@ -244,8 +323,31 @@ public class LinkListFragment extends SherlockListFragment implements
                 Log.e(TAG, "Failed to load the trip list!");
                 
                 // Set an empty adapter on the list
-                setListAdapter(new LinkListAdapter(getActivity()));
+                setListAdapter(new LinkListAdapter(LinkListActivity.this));
             }
         });
     }
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            try {
+                // We've bound to LocalService, cast the IBinder and get LocalService instance.
+                LQBinder binder = (LQBinder) service;
+                mService = binder.getService();
+                mBound = true;
+                
+                // Update the ListView
+                LinkListActivity.this.onServiceConnected(mService);
+            } catch (ClassCastException e) {
+                // Pass
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mBound = false;
+        }
+    };
 }

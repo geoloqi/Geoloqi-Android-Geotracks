@@ -3,41 +3,63 @@ package com.geoloqi.trips.ui;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.SpinnerAdapter;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockMapActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.geoloqi.android.sdk.LQSharedPreferences;
 import com.geoloqi.android.sdk.service.LQService;
 import com.geoloqi.android.sdk.service.LQService.LQBinder;
+import com.geoloqi.trips.Constants;
 import com.geoloqi.trips.R;
-import com.geoloqi.trips.app.MainFragmentPagerAdapter;
-import com.geoloqi.trips.app.SimpleAlertDialogFragment;
-import com.viewpagerindicator.TabPageIndicator;
+import com.geoloqi.trips.maps.DoubleTapMapView;
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
 
 /**
  * The main activity for the Geoloqi trips application.
  * 
  * @author Tristan Waddington
  */
-public class MainActivity extends SherlockFragmentActivity implements OnClickListener {
-    public static final String EXTRA_CURRENT_ITEM =
-            "com.geoloqi.trips.extra.CURRENT_ITEM";
+public class MainActivity extends SherlockMapActivity implements
+        OnClickListener, ActionBar.OnNavigationListener {
+    public static final String EXTRA_LAT = "com.geoloqi.geonotes.extra.LAT";
+    public static final String EXTRA_LNG = "com.geoloqi.geonotes.extra.LNG";
+    public static final String EXTRA_SPAN = "com.geoloqi.geonotes.extra.SPAN";
+    public static final String EXTRA_ZOOM = "com.geoloqi.geonotes.extra.ZOOM";
     
     private static final String TAG = "MainActivity";
     
-    private ViewPager mPager;
-    private MainFragmentPagerAdapter mAdapter;
+    /** The default zoom level to display. */
+    private static final int DEFAULT_ZOOM_LEVEL = 15;
+    
+    /** The default center point to display. */
+    private static final GeoPoint DEFAULT_MAP_CENTER =
+            new GeoPoint(45516290, -122675943);
+    
+    /** The initial map zoom. */
+    private int mMapZoom = DEFAULT_ZOOM_LEVEL;
+    
+    /** The initial map center. */
+    private GeoPoint mMapCenter = DEFAULT_MAP_CENTER;
+    
+    private MapView mMapView;
+    private MapController mMapController;
+    
+    private SpinnerAdapter mSpinnerAdapter;
     
     private LQService mService;
     private boolean mBound;
@@ -49,22 +71,46 @@ public class MainActivity extends SherlockFragmentActivity implements OnClickLis
         // Define our activity layout
         setContentView(R.layout.main);
         
-        // Configure our navigation
-        mAdapter = new MainFragmentPagerAdapter(getSupportFragmentManager());
-        mAdapter.addItem(getString(R.string.link_list_title),
-                Fragment.instantiate(this, LinkListFragment.class.getName()));
+        // Configure our ActionBar navigation
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         
-        mPager = (ViewPager) findViewById(R.id.main_pager);
-        mPager.setAdapter(mAdapter);
+        SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(actionBar.getThemedContext(),
+                R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
+        actionBar.setListNavigationCallbacks(mSpinnerAdapter, this);
         
-        // Configure our navigation titles
-        TabPageIndicator indicator =
-                (TabPageIndicator) findViewById(R.id.main_pager_indicator);
-        indicator.setViewPager(mPager);
+        // Ensure the correct navigation item is selected!
+        actionBar.setSelectedNavigationItem(0);
         
-        // Set the active tab
-        Intent intent = getIntent();
-        mPager.setCurrentItem(intent.getIntExtra(EXTRA_CURRENT_ITEM, 0));
+        // Configure our MapView
+        mMapView = new DoubleTapMapView(this, Constants.GOOGLE_MAPS_KEY);
+        mMapView.setClickable(true);
+        mMapView.setBuiltInZoomControls(true);
+        
+        // Get our MapController
+        mMapController = mMapView.getController();
+        
+        // Insert the MapView into the layout
+        ((ViewGroup) findViewById(android.R.id.content)).addView(mMapView, 0);
+        
+        // Restore our saved map state
+        if (savedInstanceState != null) {
+            int lat = savedInstanceState.getInt(EXTRA_LAT, 0);
+            int lng = savedInstanceState.getInt(EXTRA_LNG, 0);
+            
+            if ((lat + lng) != 0) {
+                mMapCenter = new GeoPoint(lat, lng);
+            }
+            mMapZoom = savedInstanceState.getInt(EXTRA_ZOOM, DEFAULT_ZOOM_LEVEL);
+        } else {
+            Location location = getLastKnownLocation();
+            if (location != null) {
+                // Set the map center to the device's last known location
+                mMapCenter = new GeoPoint((int) (location.getLatitude() * 1e6),
+                        (int) (location.getLongitude() * 1e6));
+            }
+        }
         
         // Wire up our onclick handlers
         Button signUpButton = (Button) findViewById(R.id.sign_up_button);
@@ -72,19 +118,16 @@ public class MainActivity extends SherlockFragmentActivity implements OnClickLis
             signUpButton.setOnClickListener(this);
         }
     }
-    
-    @Override
-    public void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        
-        // Set the active tab
-        mPager.setCurrentItem(intent.getIntExtra(EXTRA_CURRENT_ITEM, 0));
-    }
 
     @Override
     public void onResume() {
         super.onResume();
         
+        // Set our map center and zoom level
+        mMapController.setCenter(mMapCenter);
+        mMapController.setZoom(mMapZoom);
+        
+        /*
         // Get our location manager
         LocationManager locationManager =
                 (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -93,8 +136,9 @@ public class MainActivity extends SherlockFragmentActivity implements OnClickLis
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             DialogFragment dialog = SimpleAlertDialogFragment.newInstance(
                     R.string.dialog_gps_title, R.string.dialog_gps_message);
-            dialog.show(getSupportFragmentManager(), "gpsdialog");
+            dialog.show(getFragmentManager(), "gpsdialog");
         }
+        */
         
         // Bind to the tracking service so we can call public methods on it
         Intent intent = new Intent(this, LQService.class);
@@ -121,6 +165,19 @@ public class MainActivity extends SherlockFragmentActivity implements OnClickLis
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        
+        // Persist our map position
+        outState.putInt(EXTRA_LAT,
+                mMapView.getMapCenter().getLatitudeE6());
+        outState.putInt(EXTRA_LNG,
+                mMapView.getMapCenter().getLongitudeE6());
+        outState.putInt(EXTRA_ZOOM,
+                mMapView.getZoomLevel());
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         
@@ -133,11 +190,11 @@ public class MainActivity extends SherlockFragmentActivity implements OnClickLis
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+        case R.id.menu_share:
+            // TODO: Create a new sharing link!
+            return true;
         case R.id.menu_settings:
             startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        case R.id.menu_refresh:
-            refreshListFragments();
             return true;
         }
         return false;
@@ -152,34 +209,52 @@ public class MainActivity extends SherlockFragmentActivity implements OnClickLis
         }
     }
 
-    /** Get the bound instance of {@link LQService}. */
-    public LQService getService() {
-        return mService;
+    @Override
+    protected boolean isRouteDisplayed() {
+        return false;
     }
 
-    /** A basic callback interface for children of this Activity. */
-    public interface LQServiceConnection {
-        /**
-         * This callback will be run when the {@link MainActivity} has
-         * successfully bound to the {@link LQService}.
-         */
-        public void onServiceConnected(LQService service);
-        
-        /**
-         * This callback will be run when the {@link MainActivity} receives
-         * a refresh request from the user. Implementors should attempt
-         * to refresh their content when this method is invoked.
-         */
-        public void onRefreshRequested(LQService service);
-    }
-
-    /** Notify the list fragments that they should refresh. */
-    public void refreshListFragments() {
-        // TODO: Refactor this logic once we implement a background
-        //       sync task.
-        for (Fragment f : mAdapter.getAllItems()) {
-            ((LQServiceConnection) f).onRefreshRequested(mService);
+    @Override
+    public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+        switch (itemPosition) {
+        case 0:
+            // Do nothing! The map is already selected.
+            return true;
+        case 1:
+            // Start the LinkListActivity!
+            Intent intent = new Intent(this, LinkListActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
+            
+            // Finish this Activity to remove it from the task stack. This
+            // preserves the expected back behavior.
+            finish();
+            
+            return true;
         }
+        return false;
+    }
+
+    /**
+     * Get the last known {@link Location} from the GPS provider. If the
+     * GPS provider is disabled, query the network provider.
+     * 
+     * @return the last known location; otherwise null.
+     */
+    private Location getLastKnownLocation() {
+        Location location;
+        LocationManager locationManager =
+                (LocationManager) getSystemService(LOCATION_SERVICE);
+        
+        // Attempt to get the last known GPS location
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            location = locationManager.getLastKnownLocation(
+                    LocationManager.GPS_PROVIDER);
+        } else {
+            location = locationManager.getLastKnownLocation(
+                    LocationManager.NETWORK_PROVIDER);
+        }
+        return location;
     }
 
     /** Defines callbacks for service binding, passed to bindService() */
@@ -191,10 +266,6 @@ public class MainActivity extends SherlockFragmentActivity implements OnClickLis
                 LQBinder binder = (LQBinder) service;
                 mService = binder.getService();
                 mBound = true;
-                
-                // Notify the Fragments that the service has
-                // finished binding.
-                refreshListFragments();
             } catch (ClassCastException e) {
                 // Pass
             }
