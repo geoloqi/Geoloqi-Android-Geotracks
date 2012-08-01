@@ -7,8 +7,8 @@ import java.util.Locale;
 
 import org.json.JSONObject;
 
-import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Paint;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,13 +62,13 @@ public class LinkListAdapter extends ArrayAdapter<JSONObject> {
         JSONObject link = getItem(position);
         
         // Is the link still active?
+        int flags = holder.text1.getPaintFlags();
+        
         boolean isActive = link.optInt("currently_active") > 0;
         if (!isActive) {
-            // TODO: Inactive link!
-            //convertView.setAlpha(.6f);
+            holder.text1.setPaintFlags(flags | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
-            // TODO: Active link!
-            //convertView.setAlpha(1);
+            holder.text1.setPaintFlags(flags & ~Paint.STRIKE_THRU_TEXT_FLAG);
         }
         
         // Format the first line of text
