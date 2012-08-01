@@ -14,8 +14,8 @@
 
     <!-- Notifications -->
     <string name="foreground_ticker">Starting the location service&#8230;</string>
-    <string name="foreground_title">Trips</string>
-    <string name="foreground_text">The location service is running.</string>
+    <string name="foreground_title">Tracking your location</string>
+    <string name="foreground_text">Touch to configure the location tracker.</string>
 
     <!-- Dialogs -->
     <string name="loading_message">Loading, please wait&#8230;</string>
@@ -56,7 +56,7 @@
     <string name="pref_key_privacy_policy">privacy_policy</string>
 
     <!-- Preference titles -->
-    <string name="tracker_status_title">Enable location</string>
+    <string name="tracker_status_title">Track location</string>
     <string name="real_time_title">Real-time tracking</string>
     <string name="username_title">Sign in</string>
     <string name="app_version_title">App version</string>
