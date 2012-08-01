@@ -26,9 +26,8 @@
     <!-- Activity titles -->
     <string name="settings_title">Settings</string>
 
-    <!-- Fragments -->
-    <string name="link_list_title">LINKS</string>
-    <string name="empty_link_list">You haven\'t shared any trips.</string>
+    <!-- Lists -->
+    <string name="empty_link_list">You haven\'t shared your location yet.</string>
 
     <!-- Menu items -->
     <string name="menu_refresh_title">Refresh</string>

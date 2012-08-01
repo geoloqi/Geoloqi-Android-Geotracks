@@ -59,8 +59,7 @@ public class LinkListActivity extends SherlockListActivity implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // TODO: Set content view so we can include the anonymous
-        //       message.
+        setContentView(R.layout.link_list);
         
         // Configure our ActionBar navigation
         ActionBar actionBar = getSupportActionBar();
@@ -78,9 +77,6 @@ public class LinkListActivity extends SherlockListActivity implements
         ListView lv = getListView();
         lv.setFastScrollEnabled(false);
         lv.setOnItemClickListener(this);
-        
-        // Set the default text
-        //setEmptyText(getString(R.string.empty_link_list));
         
         // Register our context menu
         registerForContextMenu(lv);
