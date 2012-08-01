@@ -3,6 +3,7 @@ package com.geoloqi.trips.ui;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -86,7 +87,11 @@ public class MainActivity extends SherlockMapActivity implements
         // Configure our MapView
         mMapView = new DoubleTapMapView(this, Constants.GOOGLE_MAPS_KEY);
         mMapView.setClickable(true);
-        mMapView.setBuiltInZoomControls(true);
+        
+        // Disable the built in zoom controls if the device
+        // has multitouch capabilities!
+        mMapView.setBuiltInZoomControls(!getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH));
         
         // Get our MapController
         mMapController = mMapView.getController();
