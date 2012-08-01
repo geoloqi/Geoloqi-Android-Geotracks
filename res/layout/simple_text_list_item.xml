@@ -3,7 +3,7 @@
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="6dp" >
+    android:padding="8dp" >
 
     <!-- TODO: Define the text sizes/colors in teh style.xml file! -->
     <!-- textColorPrimary, textColorSecondary, textColorPrimaryInverse, textColorSecondaryInverse -->
