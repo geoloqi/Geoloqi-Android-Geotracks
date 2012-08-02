@@ -107,7 +107,7 @@ public class LinkListActivity extends SherlockListActivity implements
         super.onCreateOptionsMenu(menu);
         
         com.actionbarsherlock.view.MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
+        inflater.inflate(R.menu.link_list_menu, menu);
         
         return true;
     }

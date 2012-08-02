@@ -1,6 +1,9 @@
 package com.geoloqi.trips.ui;
 
+import java.util.List;
+
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -21,14 +24,19 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.geoloqi.android.sdk.LQSharedPreferences;
+import com.geoloqi.android.sdk.LQTracker.LQTrackerProfile;
+import com.geoloqi.android.sdk.receiver.LQBroadcastReceiver;
 import com.geoloqi.android.sdk.service.LQService;
 import com.geoloqi.android.sdk.service.LQService.LQBinder;
 import com.geoloqi.trips.Constants;
 import com.geoloqi.trips.R;
 import com.geoloqi.trips.maps.DoubleTapMapView;
+import com.geoloqi.trips.maps.LocationItemizedOverlay;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
 
 /**
  * The main activity for the Geoloqi trips application.
@@ -45,11 +53,14 @@ public class MainActivity extends SherlockMapActivity implements
     private static final String TAG = "MainActivity";
     
     /** The default zoom level to display. */
-    private static final int DEFAULT_ZOOM_LEVEL = 15;
+    private static final int DEFAULT_ZOOM_LEVEL = 19;
     
     /** The default center point to display. */
     private static final GeoPoint DEFAULT_MAP_CENTER =
             new GeoPoint(45516290, -122675943);
+    
+    /** An instance of {@link LQBroadcastReceiver}. */
+    private final MapBroadcastReceiver mLocationReceiver = new MapBroadcastReceiver();
     
     /** The initial map zoom. */
     private int mMapZoom = DEFAULT_ZOOM_LEVEL;
@@ -129,7 +140,8 @@ public class MainActivity extends SherlockMapActivity implements
         super.onResume();
         
         // Set our map center and zoom level
-        mMapController.setCenter(mMapCenter);
+        setMapCenter(mMapCenter);
+        //mMapController.setCenter(mMapCenter);
         mMapController.setZoom(mMapZoom);
         
         /*
@@ -149,6 +161,10 @@ public class MainActivity extends SherlockMapActivity implements
         Intent intent = new Intent(this, LQService.class);
         bindService(intent, mConnection, BIND_AUTO_CREATE);
         
+        // Wire up the map location receiver
+        registerReceiver(mLocationReceiver,
+                LQBroadcastReceiver.getDefaultIntentFilter());
+        
         // Prompt anonymous users to register
         View authNotice = findViewById(R.id.auth_notice);
         if (LQSharedPreferences.getSessionIsAnonymous(this)) {
@@ -167,6 +183,9 @@ public class MainActivity extends SherlockMapActivity implements
             unbindService(mConnection);
             mBound = false;
         }
+        
+        // Unregister our location receiver
+        unregisterReceiver(mLocationReceiver);
     }
 
     @Override
@@ -195,6 +214,9 @@ public class MainActivity extends SherlockMapActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+        case R.id.menu_center_map:
+            mMapController.animateTo(mMapCenter);
+            return true;
         case R.id.menu_share:
             // TODO: Create a new sharing link!
             return true;
@@ -262,6 +284,63 @@ public class MainActivity extends SherlockMapActivity implements
         return location;
     }
 
+    /** Stub */
+    private void setMapCenter(GeoPoint center) {
+        // Create our overlay item
+        OverlayItem geonote = new OverlayItem(center, null, null);
+        
+        // Build our map overlay
+        LocationItemizedOverlay geonoteOverlay = new LocationItemizedOverlay(
+                getResources().getDrawable(R.drawable.marker));
+        
+        // Add the item to our overlay
+        geonoteOverlay.addOverlay(geonote);
+        
+        // Add the overlay to our map view
+        List<Overlay> mapOverlays = mMapView.getOverlays();
+        
+        for (Overlay overlay : mapOverlays) {
+            if (overlay instanceof LocationItemizedOverlay) {
+                mapOverlays.remove(overlay);
+            }
+        }
+        
+        // TODO: I think we're going to end up with multiple overlay
+        //       instances all running on the same map.
+        mapOverlays.add(geonoteOverlay);
+        
+        // Center the map
+        mMapController.animateTo(center);
+    }
+
+    /** Stub */
+    private class MapBroadcastReceiver extends LQBroadcastReceiver {
+        @Override
+        public void onLocationChanged(Context context, Location location) {
+            mMapCenter = new GeoPoint((int) (location.getLatitude() * 1e6),
+                    (int) (location.getLongitude() * 1e6));
+            
+            // ...
+            setMapCenter(mMapCenter);
+        }
+
+        @Override
+        public void onLocationUploaded(Context context, int count) {
+            // Pass
+        }
+
+        @Override
+        public void onPushMessageReceived(Context context, Bundle data) {
+            // Pass
+        }
+
+        @Override
+        public void onTrackerProfileChanged(Context context,
+                LQTrackerProfile oldProfile, LQTrackerProfile newProfile) {
+            // Pass
+        }
+    }
+    
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override

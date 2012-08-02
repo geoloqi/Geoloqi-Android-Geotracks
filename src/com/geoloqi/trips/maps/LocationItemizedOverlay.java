@@ -15,15 +15,15 @@ import com.google.android.maps.OverlayItem;
  * 
  * @author Tristan Waddington
  */
-public class GeonoteItemizedOverlay extends ItemizedOverlay<OverlayItem> {
+public class LocationItemizedOverlay extends ItemizedOverlay<OverlayItem> {
     private Context mContext;
     private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
 
-    public GeonoteItemizedOverlay(Drawable defaultMarker) {
+    public LocationItemizedOverlay(Drawable defaultMarker) {
         super(boundCenterBottom(defaultMarker));
     }
 
-    public GeonoteItemizedOverlay(Drawable defaultMarker, Context context) {
+    public LocationItemizedOverlay(Drawable defaultMarker, Context context) {
         super(boundCenterBottom(defaultMarker));
         mContext = context;
     }
@@ -40,11 +40,6 @@ public class GeonoteItemizedOverlay extends ItemizedOverlay<OverlayItem> {
     
     @Override
     protected boolean onTap(int index) {
-        OverlayItem item = mOverlays.get(index);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
-        dialog.setTitle(item.getTitle());
-        dialog.setMessage(item.getSnippet());
-        dialog.show();
         return false;
     }
     
