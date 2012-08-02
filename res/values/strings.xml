@@ -30,6 +30,7 @@
     <string name="empty_link_list">You haven\'t shared your location yet.</string>
 
     <!-- Menu items -->
+    <string name="menu_center_map_title">Center map</string>
     <string name="menu_refresh_title">Refresh</string>
     <string name="menu_settings_title">Settings</string>
     <string name="menu_share_title">Share</string>

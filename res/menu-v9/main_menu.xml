@@ -2,10 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/menu_center_map"
+        android:icon="@drawable/ic_device_access_location_found"
+        android:showAsAction="always"
+        android:title="@string/menu_center_map_title"/>
+    <item
         android:id="@+id/menu_share"
         android:icon="@drawable/ic_social_share"
-        android:title="@string/menu_share_title"
-        android:showAsAction="always" />
+        android:showAsAction="always"
+        android:title="@string/menu_share_title"/>
     <item
         android:id="@+id/menu_settings"
         android:icon="@drawable/ic_action_settings"
