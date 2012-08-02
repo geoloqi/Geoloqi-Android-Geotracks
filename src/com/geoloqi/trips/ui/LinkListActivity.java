@@ -115,6 +115,11 @@ public class LinkListActivity extends SherlockListActivity implements
     @Override
     public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
         switch(item.getItemId()) {
+        case R.id.menu_refresh:
+            if (mBound && mService != null) {
+                onRefreshRequested(mService);
+            }
+            return true;
         case R.id.menu_share:
             // TODO: Create a new sharing link!
             return true;
