@@ -144,18 +144,9 @@ public class MainActivity extends SherlockMapActivity implements
         //mMapController.setCenter(mMapCenter);
         mMapController.setZoom(mMapZoom);
         
-        /*
         // Get our location manager
         LocationManager locationManager =
                 (LocationManager) getSystemService(LOCATION_SERVICE);
-        
-        // Notify the user if GPS is disabled
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            DialogFragment dialog = SimpleAlertDialogFragment.newInstance(
-                    R.string.dialog_gps_title, R.string.dialog_gps_message);
-            dialog.show(getFragmentManager(), "gpsdialog");
-        }
-        */
         
         // Bind to the tracking service so we can call public methods on it
         Intent intent = new Intent(this, LQService.class);
@@ -215,10 +206,18 @@ public class MainActivity extends SherlockMapActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
         case R.id.menu_center_map:
+            Location location = getLastKnownLocation();
+            if (location != null) {
+                // Set the map center to the device's last known location
+                mMapCenter = new GeoPoint((int) (location.getLatitude() * 1e6),
+                        (int) (location.getLongitude() * 1e6));
+            }
             mMapController.animateTo(mMapCenter);
             return true;
         case R.id.menu_share:
             // TODO: Create a new sharing link!
+            
+            
             return true;
         case R.id.menu_settings:
             startActivity(new Intent(this, SettingsActivity.class));
@@ -284,7 +283,12 @@ public class MainActivity extends SherlockMapActivity implements
         return location;
     }
 
-    /** Stub */
+    /**
+     * Given a location, reposition the pin and animate the map to
+     * center on the new location.
+     * 
+     * @param center
+     */
     private void setMapCenter(GeoPoint center) {
         // Create our overlay item
         OverlayItem geonote = new OverlayItem(center, null, null);
@@ -299,28 +303,32 @@ public class MainActivity extends SherlockMapActivity implements
         // Add the overlay to our map view
         List<Overlay> mapOverlays = mMapView.getOverlays();
         
+        // Remove any out of date overlays before adding
+        // the new one to the map.
         for (Overlay overlay : mapOverlays) {
             if (overlay instanceof LocationItemizedOverlay) {
                 mapOverlays.remove(overlay);
             }
         }
-        
-        // TODO: I think we're going to end up with multiple overlay
-        //       instances all running on the same map.
         mapOverlays.add(geonoteOverlay);
         
         // Center the map
         mMapController.animateTo(center);
     }
 
-    /** Stub */
+    /**
+     * Handle broadcast messages from the location service when
+     * this Activity is running in the foreground.
+     * 
+     * @author Tristan Waddington
+     */
     private class MapBroadcastReceiver extends LQBroadcastReceiver {
         @Override
         public void onLocationChanged(Context context, Location location) {
+            // The background service has received a new location fix and
+            // we should re-center the map.
             mMapCenter = new GeoPoint((int) (location.getLatitude() * 1e6),
                     (int) (location.getLongitude() * 1e6));
-            
-            // ...
             setMapCenter(mMapCenter);
         }
 
