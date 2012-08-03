@@ -278,11 +278,7 @@ public class LinkListActivity extends SherlockListActivity implements
     public void onServiceConnected(LQService service) {
         Log.d(TAG, "onServiceConnected");
         
-        if (getListAdapter() != null) {
-            // Bail out if our list adapter has already
-            // been populated!
-            return;
-        }
+        // Refresh the list adapter
         onRefreshRequested(service);
     }
 
