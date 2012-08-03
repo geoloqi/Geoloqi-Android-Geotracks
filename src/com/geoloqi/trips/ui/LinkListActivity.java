@@ -187,9 +187,6 @@ public class LinkListActivity extends SherlockListActivity implements
                     link.optString("description"), link.optString("shortlink")));
             startActivity(Intent.createChooser(intent, null));
             return true;
-        case R.id.menu_link_export:
-            // TODO: What do we want to do here?
-            return true;
         }
         return false;
     }

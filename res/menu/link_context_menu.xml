@@ -7,8 +7,5 @@
     <item
         android:id="@+id/menu_link_share"
         android:title="@string/menu_link_share"/>
-    <item
-        android:id="@+id/menu_link_export"
-        android:title="@string/menu_link_export"/>
 
 </menu>
