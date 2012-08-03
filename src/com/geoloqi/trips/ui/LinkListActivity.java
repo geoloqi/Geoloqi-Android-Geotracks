@@ -123,7 +123,7 @@ public class LinkListActivity extends SherlockListActivity implements
             }
             return true;
         case R.id.menu_share:
-            // TODO: Create a new sharing link!
+            startActivity(new Intent(this, NewShareLinkActivity.class));
             return true;
         case R.id.menu_settings:
             startActivity(new Intent(this, SettingsActivity.class));

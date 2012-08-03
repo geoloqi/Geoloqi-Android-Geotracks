@@ -216,9 +216,7 @@ public class MainActivity extends SherlockMapActivity implements
             mMapController.animateTo(mMapCenter);
             return true;
         case R.id.menu_share:
-            // TODO: Create a new sharing link!
-            
-            
+            startActivity(new Intent(this, NewShareLinkActivity.class));
             return true;
         case R.id.menu_settings:
             startActivity(new Intent(this, SettingsActivity.class));

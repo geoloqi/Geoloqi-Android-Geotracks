@@ -8,6 +8,10 @@
         <item>Links</item>
     </string-array>
 
+    <!-- Form text -->
+    <string name="new_share_link_title">Share your location</string>
+    <string name="share_link_description">Heading out. Track me on Geoloqi!</string>
+
     <!-- Button text -->
     <string name="sign_up_button">Sign Up</string>
     <string name="sign_in_button">Sign In</string>
@@ -22,6 +26,7 @@
     <string name="authenticating_message">Authenticating, please wait&#8230;</string>
     <string name="dialog_gps_title">GPS is Disabled</string>
     <string name="dialog_gps_message">You should enable GPS to make sure your geonotes are received.</string>
+    <string name="share_link_dialog_title">Share link to&#8230;</string>
 
     <!-- Activity titles -->
     <string name="settings_title">Settings</string>
@@ -82,6 +87,14 @@
     <string name="sign_up_title">Sign-Up</string>
     <string name="sign_in_title">Sign-In</string>
     <string name="new_geonote_title">New Geonote</string>
+    <string name="sharing_details">
+        Create a unique link to share your location with a friend! Your
+        location can be viewed in a web browser by anyone with access to
+        the link.\n\nYou can deactivate the link at any time using
+        the mobile app, or by visiting the Geoloqi website. You can also
+        disable the tracker from the application settings, which will
+        prevent your active links from accessing your current location.
+    </string>
 
     <!-- Default strings -->
     <string name="short_lorem">Lorem ipsum dolor sit amet</string>
