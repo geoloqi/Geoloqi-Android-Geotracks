@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -36,6 +37,7 @@ import com.geoloqi.android.sdk.LQSession.OnRunApiRequestListener;
 import com.geoloqi.android.sdk.service.LQService;
 import com.geoloqi.android.sdk.service.LQService.LQBinder;
 import com.geoloqi.trips.R;
+import com.geoloqi.trips.utils.LocationUtils;
 import com.geoloqi.trips.widget.LinkListAdapter;
 
 /**
@@ -228,8 +230,14 @@ public class LinkListActivity extends SherlockListActivity implements
             if (mBound && mService != null) {
                 LQSession session = mService.getSession();
                 if (session != null) {
+                    // Get our last known location
+                    Location location = LocationUtils.getLastKnownLocation(this);
+                    
                     JSONObject data = new JSONObject();
                     data.put("token", link.optString("token"));
+                    data.put("longitude", location.getLongitude());
+                    data.put("latitude", location.getLatitude());
+                    
                     session.runPostRequest("link/expire", data,
                             new ExpireLinkListener());
                 }
