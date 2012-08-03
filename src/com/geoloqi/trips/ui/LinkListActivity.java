@@ -20,11 +20,13 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
@@ -79,6 +81,9 @@ public class LinkListActivity extends SherlockListActivity implements
         ListView lv = getListView();
         lv.setFastScrollEnabled(false);
         lv.setOnItemClickListener(this);
+        
+        // Show the loading indicator
+        setListShown(false);
         
         // Register our context menu
         registerForContextMenu(lv);
@@ -211,6 +216,21 @@ public class LinkListActivity extends SherlockListActivity implements
         return false;
     }
     
+    private void setListShown(boolean shown) {
+        ListView lv = getListView();
+        ViewGroup gv = (ViewGroup) findViewById(android.R.id.empty);
+        ProgressBar pb = (ProgressBar) findViewById(android.R.id.progress);
+        if (shown) {
+            pb.setVisibility(View.GONE);
+            lv.setVisibility(View.VISIBLE);
+            gv.setVisibility(View.VISIBLE);
+        } else {
+            lv.setVisibility(View.GONE);
+            gv.setVisibility(View.GONE);
+            pb.setVisibility(View.VISIBLE);
+        }
+    }
+    
     private void expireLink(final AdapterContextMenuInfo info,
             final JSONObject link) {
         try {
@@ -289,6 +309,9 @@ public class LinkListActivity extends SherlockListActivity implements
             return;
         }
         
+        // Show the loading indicator
+        setListShown(false);
+        
         session.runGetRequest("link/list", new OnRunApiRequestListener() {
             @Override
             public void onSuccess(LQSession session, JSONObject json,
@@ -302,6 +325,11 @@ public class LinkListActivity extends SherlockListActivity implements
                     for (int i = 0; i < mItems.length(); i++) {
                         mAdapter.add(mItems.getJSONObject(i));
                     }
+                    
+                    // Hide the loading indicator
+                    setListShown(true);
+                    
+                    // Populate our list adapter
                     setListAdapter(mAdapter);
                 } catch (JSONException e) {
                     Log.e(TAG, "Failed to parse the list of trips!", e);
@@ -315,6 +343,9 @@ public class LinkListActivity extends SherlockListActivity implements
             public void onFailure(LQSession session, LQException e) {
                 Log.e(TAG, "Failed to load the trip list!", e);
                 
+                // Hide the loading indicator
+                setListShown(true);
+                
                 // Set an empty adapter on the list
                 setListAdapter(new LinkListAdapter(LinkListActivity.this));
             }
@@ -323,6 +354,9 @@ public class LinkListActivity extends SherlockListActivity implements
                     Header[] headers, StatusLine status) {
                 Log.d(TAG, status.toString());
                 Log.e(TAG, "Failed to load the trip list!");
+                
+                // Hide the loading indicator
+                setListShown(true);
                 
                 // Set an empty adapter on the list
                 setListAdapter(new LinkListAdapter(LinkListActivity.this));
