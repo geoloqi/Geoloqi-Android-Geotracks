@@ -32,6 +32,7 @@ import com.geoloqi.trips.Constants;
 import com.geoloqi.trips.R;
 import com.geoloqi.trips.maps.DoubleTapMapView;
 import com.geoloqi.trips.maps.LocationItemizedOverlay;
+import com.geoloqi.trips.utils.LocationUtils;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
@@ -120,7 +121,7 @@ public class MainActivity extends SherlockMapActivity implements
             }
             mMapZoom = savedInstanceState.getInt(EXTRA_ZOOM, DEFAULT_ZOOM_LEVEL);
         } else {
-            Location location = getLastKnownLocation();
+            Location location = LocationUtils.getLastKnownLocation(this);
             if (location != null) {
                 // Set the map center to the device's last known location
                 mMapCenter = new GeoPoint((int) (location.getLatitude() * 1e6),
@@ -206,7 +207,7 @@ public class MainActivity extends SherlockMapActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
         case R.id.menu_center_map:
-            Location location = getLastKnownLocation();
+            Location location = LocationUtils.getLastKnownLocation(this);
             if (location != null) {
                 // Set the map center to the device's last known location
                 mMapCenter = new GeoPoint((int) (location.getLatitude() * 1e6),
@@ -259,28 +260,6 @@ public class MainActivity extends SherlockMapActivity implements
             return true;
         }
         return false;
-    }
-
-    /**
-     * Get the last known {@link Location} from the GPS provider. If the
-     * GPS provider is disabled, query the network provider.
-     * 
-     * @return the last known location; otherwise null.
-     */
-    private Location getLastKnownLocation() {
-        Location location;
-        LocationManager locationManager =
-                (LocationManager) getSystemService(LOCATION_SERVICE);
-        
-        // Attempt to get the last known GPS location
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            location = locationManager.getLastKnownLocation(
-                    LocationManager.GPS_PROVIDER);
-        } else {
-            location = locationManager.getLastKnownLocation(
-                    LocationManager.NETWORK_PROVIDER);
-        }
-        return location;
     }
 
     /**
