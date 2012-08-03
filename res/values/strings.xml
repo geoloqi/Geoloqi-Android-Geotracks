@@ -71,7 +71,7 @@
     <string name="privacy_policy_title">Privacy Policy</string>
 
     <!-- Preference summaries -->
-    <string name="real_time_summary">Updates will be lost on unreliable network connections!</string>
+    <string name="real_time_summary">Updates may be lost on unreliable network connections!</string>
     <string name="user_account_summary">Sign in as another user?</string>
 
     <!-- Error messages -->
