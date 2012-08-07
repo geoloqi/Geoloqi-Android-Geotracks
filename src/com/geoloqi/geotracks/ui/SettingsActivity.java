@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.geoloqi.android.sdk.LQBuild;
 import com.geoloqi.android.sdk.LQSharedPreferences;
+import com.geoloqi.android.sdk.LQTracker;
 import com.geoloqi.android.sdk.LQTracker.LQTrackerProfile;
 import com.geoloqi.android.sdk.service.LQService;
 import com.geoloqi.android.sdk.service.LQService.LQBinder;
@@ -306,6 +307,20 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                 LQBinder binder = (LQBinder) service;
                 mService = binder.getService();
                 mBound = true;
+                
+                // Always display the correct real-time user preference!
+                if (mService != null) {
+                    LQTracker tracker = mService.getTracker();
+                    if (tracker != null) {
+                        CheckBoxPreference realtime =
+                                (CheckBoxPreference) findPreference(getString(R.string.pref_key_real_time));
+                        if (LQTrackerProfile.REAL_TIME.equals(tracker.getProfile())) {
+                            realtime.setChecked(true);
+                        } else {
+                            realtime.setChecked(false);
+                        }
+                    }
+                }
             } catch (ClassCastException e) {
                 // Pass
             }

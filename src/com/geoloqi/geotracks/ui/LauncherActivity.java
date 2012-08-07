@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
+import com.geoloqi.android.sdk.LQSharedPreferences;
+import com.geoloqi.android.sdk.LQTracker.LQTrackerProfile;
 import com.geoloqi.geotracks.R;
 
 /**
@@ -35,7 +37,9 @@ public class LauncherActivity extends Activity {
         
         // Start up the tracking service
         if (SettingsActivity.isTrackerEnabled(this)) {
-            SettingsActivity.startTracker(this);
+            LQTrackerProfile savedProfile =
+                    LQSharedPreferences.getTrackerProfile(this);
+            SettingsActivity.startTracker(this, savedProfile);
         }
         
         // Show the splash screen then start the main activity
