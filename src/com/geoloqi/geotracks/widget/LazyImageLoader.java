@@ -1,4 +1,4 @@
-package com.geoloqi.trips.widget;
+package com.geoloqi.geotracks.widget;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +30,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.geoloqi.trips.utils.FileUtils;
+import com.geoloqi.geotracks.utils.FileUtils;
 
 /**
  * A lazy image loader class for downloading images on a background

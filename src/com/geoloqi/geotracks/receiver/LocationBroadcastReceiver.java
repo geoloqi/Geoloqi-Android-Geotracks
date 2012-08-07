@@ -1,4 +1,4 @@
-package com.geoloqi.trips.receiver;
+package com.geoloqi.geotracks.receiver;
 
 import android.content.Context;
 import android.location.Location;

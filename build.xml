@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="GeoloqiAndroidTrips" default="help">
+<project name="GeoloqiAndroidGeotracks" default="help">
 
     <!-- The local.properties file is created and updated by the 'android' tool.
          It contains the path to the SDK. It should *NOT* be checked into
@@ -96,7 +96,7 @@
     <import file="${sdk.dir}/tools/ant/build.xml" />
 
     <!-- The file to update with the version and build strings. -->
-    <property name="file.geoloqi.build" value="${source.absolute.dir}/com/geoloqi/trips/Build.java" />
+    <property name="file.geoloqi.build" value="${source.absolute.dir}/com/geoloqi/geotracks/Build.java" />
 
     <!-- The path to the git executable. -->
     <property name="git.path" value="/usr/bin/git" />

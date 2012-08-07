@@ -1,4 +1,4 @@
-package com.geoloqi.trips.ui;
+package com.geoloqi.geotracks.ui;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -27,8 +27,8 @@ import com.geoloqi.android.sdk.LQSharedPreferences;
 import com.geoloqi.android.sdk.LQTracker.LQTrackerProfile;
 import com.geoloqi.android.sdk.service.LQService;
 import com.geoloqi.android.sdk.service.LQService.LQBinder;
-import com.geoloqi.trips.Build;
-import com.geoloqi.trips.R;
+import com.geoloqi.geotracks.Build;
+import com.geoloqi.geotracks.R;
 
 /**
  * <p>This activity class is used to expose location tracking
@@ -39,7 +39,7 @@ import com.geoloqi.trips.R;
 public class SettingsActivity extends SherlockPreferenceActivity implements
         OnPreferenceChangeListener, OnPreferenceClickListener {
     private static final String TAG = "SettingsActivity";
-    private static final String PREF_USER_EMAIL = "com.geoloqi.trips.preference.EMAIL";
+    private static final String PREF_USER_EMAIL = "com.geoloqi.geotracks.preference.EMAIL";
     private static final String URL_PRIVACY_POLICY =
             "https://geoloqi.com/privacy?utm_source=preferences&utm_medium=app&utm_campaign=android";
     

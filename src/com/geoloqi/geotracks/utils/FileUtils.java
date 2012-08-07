@@ -1,4 +1,4 @@
-package com.geoloqi.trips.utils;
+package com.geoloqi.geotracks.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

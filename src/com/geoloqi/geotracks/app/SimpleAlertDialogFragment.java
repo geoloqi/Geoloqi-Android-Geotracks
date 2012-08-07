@@ -1,4 +1,4 @@
-package com.geoloqi.trips.app;
+package com.geoloqi.geotracks.app;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,8 +13,8 @@ import android.support.v4.app.DialogFragment;
  * @author Tristan Waddington
  */
 public class SimpleAlertDialogFragment extends DialogFragment {
-    private static final String EXTRA_TITLE = "com.geoloqi.trips.app.extra.TITLE";
-    private static final String EXTRA_MESSAGE = "com.geoloqi.trips.app.extra.MESSAGE";
+    private static final String EXTRA_TITLE = "com.geoloqi.geotracks.app.extra.TITLE";
+    private static final String EXTRA_MESSAGE = "com.geoloqi.geotracks.app.extra.MESSAGE";
 
     public static SimpleAlertDialogFragment newInstance(int title, int message) {
         SimpleAlertDialogFragment f = new SimpleAlertDialogFragment();

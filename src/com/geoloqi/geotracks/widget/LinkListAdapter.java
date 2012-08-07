@@ -1,4 +1,4 @@
-package com.geoloqi.trips.widget;
+package com.geoloqi.geotracks.widget;
 
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.geoloqi.trips.R;
+import com.geoloqi.geotracks.R;
 
 /**
  * This class is a simple implementation of ArrayAdapter and

@@ -1,4 +1,4 @@
-package com.geoloqi.trips.ui;
+package com.geoloqi.geotracks.ui;
 
 import java.util.List;
 
@@ -28,11 +28,11 @@ import com.geoloqi.android.sdk.LQTracker.LQTrackerProfile;
 import com.geoloqi.android.sdk.receiver.LQBroadcastReceiver;
 import com.geoloqi.android.sdk.service.LQService;
 import com.geoloqi.android.sdk.service.LQService.LQBinder;
-import com.geoloqi.trips.Constants;
-import com.geoloqi.trips.R;
-import com.geoloqi.trips.maps.DoubleTapMapView;
-import com.geoloqi.trips.maps.LocationItemizedOverlay;
-import com.geoloqi.trips.utils.LocationUtils;
+import com.geoloqi.geotracks.Constants;
+import com.geoloqi.geotracks.maps.DoubleTapMapView;
+import com.geoloqi.geotracks.maps.LocationItemizedOverlay;
+import com.geoloqi.geotracks.utils.LocationUtils;
+import com.geoloqi.geotracks.R;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;

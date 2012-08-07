@@ -1,4 +1,4 @@
-package com.geoloqi.trips;
+package com.geoloqi.geotracks;
 
 /**
  * This class contains the current build information for the

@@ -1,4 +1,4 @@
-package com.geoloqi.trips.widget;
+package com.geoloqi.geotracks.widget;
 
 import android.widget.ImageView;
 import android.widget.ListView;

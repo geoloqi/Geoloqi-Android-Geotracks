@@ -1,4 +1,4 @@
-package com.geoloqi.trips.maps;
+package com.geoloqi.geotracks.maps;
 
 import android.content.Context;
 import android.util.AttributeSet;

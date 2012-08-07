@@ -1,4 +1,4 @@
-package com.geoloqi.trips.maps;
+package com.geoloqi.geotracks.maps;
 
 import java.util.ArrayList;
 

@@ -1,11 +1,11 @@
-package com.geoloqi.trips.ui;
+package com.geoloqi.geotracks.ui;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-import com.geoloqi.trips.R;
+import com.geoloqi.geotracks.R;
 
 /**
  * This Activity is responsible for launching the Geoloqi client

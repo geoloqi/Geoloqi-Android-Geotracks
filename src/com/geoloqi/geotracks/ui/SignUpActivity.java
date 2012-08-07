@@ -1,4 +1,4 @@
-package com.geoloqi.trips.ui;
+package com.geoloqi.geotracks.ui;
 
 import org.apache.http.Header;
 import org.apache.http.StatusLine;
@@ -30,7 +30,7 @@ import com.geoloqi.android.sdk.LQSession.OnRunApiRequestListener;
 import com.geoloqi.android.sdk.LQSharedPreferences;
 import com.geoloqi.android.sdk.service.LQService;
 import com.geoloqi.android.sdk.service.LQService.LQBinder;
-import com.geoloqi.trips.R;
+import com.geoloqi.geotracks.R;
 
 /**
  * This Activity class handles all the logic to promote an anonymous
