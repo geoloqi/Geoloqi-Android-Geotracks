@@ -2,15 +2,11 @@ package com.geoloqi.geotracks.ui;
 
 import java.util.List;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -26,18 +22,15 @@ import com.actionbarsherlock.view.MenuItem;
 import com.geoloqi.android.sdk.LQSharedPreferences;
 import com.geoloqi.android.sdk.LQTracker.LQTrackerProfile;
 import com.geoloqi.android.sdk.receiver.LQBroadcastReceiver;
-import com.geoloqi.android.sdk.service.LQService;
-import com.geoloqi.android.sdk.service.LQService.LQBinder;
 import com.geoloqi.geotracks.Constants;
-import com.geoloqi.geotracks.maps.DoubleTapMapView;
-import com.geoloqi.geotracks.maps.LocationItemizedOverlay;
-import com.geoloqi.geotracks.utils.LocationUtils;
 import com.geoloqi.geotracks.R;
+import com.geoloqi.geotracks.maps.DoubleTapMapView;
+import com.geoloqi.geotracks.utils.LocationUtils;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
 
 /**
  * The main activity for the Geoloqi trips application.
@@ -46,9 +39,6 @@ import com.google.android.maps.OverlayItem;
  */
 public class MainActivity extends SherlockMapActivity implements
         OnClickListener, ActionBar.OnNavigationListener {
-    public static final String EXTRA_LAT = "com.geoloqi.geonotes.extra.LAT";
-    public static final String EXTRA_LNG = "com.geoloqi.geonotes.extra.LNG";
-    public static final String EXTRA_SPAN = "com.geoloqi.geonotes.extra.SPAN";
     public static final String EXTRA_ZOOM = "com.geoloqi.geonotes.extra.ZOOM";
     
     private static final String TAG = "MainActivity";
@@ -71,11 +61,6 @@ public class MainActivity extends SherlockMapActivity implements
     
     private MapView mMapView;
     private MapController mMapController;
-    
-    private SpinnerAdapter mSpinnerAdapter;
-    
-    private LQService mService;
-    private boolean mBound;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,28 +90,24 @@ public class MainActivity extends SherlockMapActivity implements
         mMapView.setBuiltInZoomControls(!getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH));
         
+        // Get our list of map overlays
+        List<Overlay> mapOverlays = mMapView.getOverlays();
+        
+        // Set our map location overlay
+        MyLocationOverlay locationOverlay = new MyLocationOverlay(this, mMapView);
+        locationOverlay.disableCompass();
+        locationOverlay.enableMyLocation();
+        mapOverlays.add(locationOverlay);
+        
         // Get our MapController
         mMapController = mMapView.getController();
         
         // Insert the MapView into the layout
         ((ViewGroup) findViewById(android.R.id.content)).addView(mMapView, 0);
         
-        // Restore our saved map state
+        // Restore our saved instance state
         if (savedInstanceState != null) {
-            int lat = savedInstanceState.getInt(EXTRA_LAT, 0);
-            int lng = savedInstanceState.getInt(EXTRA_LNG, 0);
-            
-            if ((lat + lng) != 0) {
-                mMapCenter = new GeoPoint(lat, lng);
-            }
             mMapZoom = savedInstanceState.getInt(EXTRA_ZOOM, DEFAULT_ZOOM_LEVEL);
-        } else {
-            Location location = LocationUtils.getLastKnownLocation(this);
-            if (location != null) {
-                // Set the map center to the device's last known location
-                mMapCenter = new GeoPoint((int) (location.getLatitude() * 1e6),
-                        (int) (location.getLongitude() * 1e6));
-            }
         }
         
         // Wire up our onclick handlers
@@ -140,18 +121,8 @@ public class MainActivity extends SherlockMapActivity implements
     public void onResume() {
         super.onResume();
         
-        // Set our map center and zoom level
-        setMapCenter(mMapCenter);
-        //mMapController.setCenter(mMapCenter);
+        // Set our zoom level
         mMapController.setZoom(mMapZoom);
-        
-        // Get our location manager
-        LocationManager locationManager =
-                (LocationManager) getSystemService(LOCATION_SERVICE);
-        
-        // Bind to the tracking service so we can call public methods on it
-        Intent intent = new Intent(this, LQService.class);
-        bindService(intent, mConnection, BIND_AUTO_CREATE);
         
         // Wire up the map location receiver
         registerReceiver(mLocationReceiver,
@@ -170,12 +141,6 @@ public class MainActivity extends SherlockMapActivity implements
     public void onPause() {
         super.onPause();
         
-        // Unbind from LQService
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
-        
         // Unregister our location receiver
         unregisterReceiver(mLocationReceiver);
     }
@@ -184,11 +149,7 @@ public class MainActivity extends SherlockMapActivity implements
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         
-        // Persist our map position
-        outState.putInt(EXTRA_LAT,
-                mMapView.getMapCenter().getLatitudeE6());
-        outState.putInt(EXTRA_LNG,
-                mMapView.getMapCenter().getLongitudeE6());
+        // Persist our map zoom
         outState.putInt(EXTRA_ZOOM,
                 mMapView.getZoomLevel());
     }
@@ -261,39 +222,6 @@ public class MainActivity extends SherlockMapActivity implements
     }
 
     /**
-     * Given a location, reposition the pin and animate the map to
-     * center on the new location.
-     * 
-     * @param center
-     */
-    private void setMapCenter(GeoPoint center) {
-        // Create our overlay item
-        OverlayItem geonote = new OverlayItem(center, null, null);
-        
-        // Build our map overlay
-        LocationItemizedOverlay geonoteOverlay = new LocationItemizedOverlay(
-                getResources().getDrawable(R.drawable.marker));
-        
-        // Add the item to our overlay
-        geonoteOverlay.addOverlay(geonote);
-        
-        // Add the overlay to our map view
-        List<Overlay> mapOverlays = mMapView.getOverlays();
-        
-        // Remove any out of date overlays before adding
-        // the new one to the map.
-        for (Overlay overlay : mapOverlays) {
-            if (overlay instanceof LocationItemizedOverlay) {
-                mapOverlays.remove(overlay);
-            }
-        }
-        mapOverlays.add(geonoteOverlay);
-        
-        // Center the map
-        mMapController.animateTo(center);
-    }
-
-    /**
      * Handle broadcast messages from the location service when
      * this Activity is running in the foreground.
      * 
@@ -302,16 +230,12 @@ public class MainActivity extends SherlockMapActivity implements
     private class MapBroadcastReceiver extends LQBroadcastReceiver {
         @Override
         public void onLocationChanged(Context context, Location location) {
-            // The background service has received a new location fix and
-            // we should re-center the map.
-            mMapCenter = new GeoPoint((int) (location.getLatitude() * 1e6),
-                    (int) (location.getLongitude() * 1e6));
-            setMapCenter(mMapCenter);
+            // TODO: Display the number of batched fixes!
         }
 
         @Override
         public void onLocationUploaded(Context context, int count) {
-            // Pass
+            // TODO: Update the number of batched fixes!
         }
 
         @Override
@@ -322,27 +246,7 @@ public class MainActivity extends SherlockMapActivity implements
         @Override
         public void onTrackerProfileChanged(Context context,
                 LQTrackerProfile oldProfile, LQTrackerProfile newProfile) {
-            // Pass
+            // TODO: Display the active tracker profile!
         }
     }
-    
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            try {
-                // We've bound to LocalService, cast the IBinder and get LocalService instance.
-                LQBinder binder = (LQBinder) service;
-                mService = binder.getService();
-                mBound = true;
-            } catch (ClassCastException e) {
-                // Pass
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mBound = false;
-        }
-    };
 }
