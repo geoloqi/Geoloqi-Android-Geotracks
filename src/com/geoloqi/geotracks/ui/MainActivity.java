@@ -1,7 +1,5 @@
 package com.geoloqi.geotracks.ui;
 
-import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.SpinnerAdapter;
-
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockMapActivity;
 import com.actionbarsherlock.view.Menu;
@@ -26,11 +23,9 @@ import com.geoloqi.geotracks.Constants;
 import com.geoloqi.geotracks.R;
 import com.geoloqi.geotracks.maps.DoubleTapMapView;
 import com.geoloqi.geotracks.utils.LocationUtils;
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
-import com.google.android.maps.Overlay;
+import com.google.android.maps.*;
+
+import java.util.List;
 
 /**
  * The main activity for the Geoloqi trips application.
@@ -75,7 +70,7 @@ public class MainActivity extends SherlockMapActivity implements
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         
         SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(actionBar.getThemedContext(),
-                R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
+                R.array.action_list, R.layout.sherlock_spinner_dropdown_item);
         actionBar.setListNavigationCallbacks(mSpinnerAdapter, this);
         
         // Ensure the correct navigation item is selected!
