@@ -89,7 +89,7 @@ public class MainActivity extends SherlockMapActivity implements
         List<Overlay> mapOverlays = mMapView.getOverlays();
         
         // Set our map location overlay
-        MyLocationOverlay locationOverlay = new MyLocationOverlay(this, mMapView);
+        final MyLocationOverlay locationOverlay = new MyLocationOverlay(this, mMapView);
         locationOverlay.disableCompass();
         locationOverlay.enableMyLocation();
         mapOverlays.add(locationOverlay);
@@ -103,6 +103,13 @@ public class MainActivity extends SherlockMapActivity implements
         // Restore our saved instance state
         if (savedInstanceState != null) {
             mMapZoom = savedInstanceState.getInt(EXTRA_ZOOM, DEFAULT_ZOOM_LEVEL);
+        } else {
+            locationOverlay.runOnFirstFix(new Runnable() {
+                @Override
+                public void run() {
+                    mMapController.animateTo(locationOverlay.getMyLocation());
+                }
+            });
         }
         
         // Wire up our onclick handlers
